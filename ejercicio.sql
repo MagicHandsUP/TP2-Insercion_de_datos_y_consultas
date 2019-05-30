@@ -134,19 +134,19 @@ INSERT INTO Pass_in_trip VALUES(7772,'20051129 00:00:00.000',14,'1c');
 /* Consultas simples */
 
 -- 1. Nombre de los pasajeros cuyo codigo sea mayor a 15
-SELECT ID_psg, name FROM Passenger WHERE ID_psg > 15;
+SELECT name FROM Passenger WHERE ID_psg > 15;
 
 -- 2. Nombre de los pasajeros cuyo codigo este en el rango de 15 a 30
-SELECT ID_psg, name FROM Passenger WHERE ID_psg BETWEEN 15 AND 30;
+SELECT name FROM Passenger WHERE ID_psg BETWEEN 15 AND 30;
 
 -- 3. Codigo del pasajero Kurt Russell
-SELECT ID_psg, name FROM Passenger WHERE name = 'Kurt Russell';
+SELECT ID_psg FROM Passenger WHERE name = 'Kurt Russell';
 
 -- 4. Ciudades de llegada de los vuelos que parten de Londres (London)
-SELECT town_out, town_from FROM Trip WHERE town_from = 'London';
+SELECT town_to FROM Trip WHERE town_from = 'London';
 
 -- 5. Ciudades de partida de los vuelos que llegan a Londres (London)
-SELECT town_from, town_out FROM Trip WHERE town_out = 'London';
+SELECT town_from FROM Trip WHERE town_to = 'London';
 
 -- 6. Los tipos de avion de que son utilizados en los vuelos que parten de Paris
 SELECT plane, town_from FROM Trip WHERE town_from = 'Paris';
@@ -162,3 +162,26 @@ SELECT ID_psg FROM Pass_in_trip WHERE place = '3a';
 
 -- 10. El nombre de los pasajeros que empiecen con la letra “M”.
 SELECT name FROM Passenger WHERE name = 'M%';
+
+/* Consultas usando varias tablas */
+
+-- 1. Nombre de los pasajeros viajan a Paris o a Londres.
+SELECT name FROM Passenger JOIN Pass_in_trip ON Passenger.ID_psg = Pass_in_trip.ID_psg JOIN Trip on Pass_in_trip.trip_no = Trip.trip_no WHERE Trip.town_to = 'Paris' or Trip.town_to = 'London';
+
+-- 2. Nombre de los pasajeros que prefieren sentarse al lado de la ventana (sitios “a” y “d”).
+SELECT name FROM Passenger JOIN Pass_in_trip ON Passenger.ID_psg = Pass_in_trip.ID_psg WHERE Pass_in_trip.place = '%a' OR Pass_in_trip.place = '%d';
+
+-- 3. Lugar de destino de los pasajeros que tengan códigos con valores entre 10 y 20.
+SELECT town_to FROM Trip JOIN Pass_in_trip on Trip.trip_no = Pass_in_trip.trip_no JOIN Passenger ON Passenger.ID_psg = Pass_in_trip.ID_psg WHERE Passenger.ID_psg BETWEEN 15 AND 30;
+
+-- 4. Todos los datos de los últimos 5 vuelos vendidas por nuestra empresa
+SELECT TOP(5) * FROM Trip Order By trip_no DESC;
+
+-- 5. Los modelos de aviones únicos que realizaron un vuelo con nuestra empresa “Viajes Luca”
+SELECT DISTINCT plane FROM Trip;
+
+-- 6. El nombre, las ciudades de salida y destino de los pasajeros cuyo nombre empiecen con la letra “S”
+(SELECT town_from, town_to FROM Trip JOIN Pass_in_trip ON Trip.trip_no = Pass_in_trip.trip_no JOIN Passenger ON Pass_in_trip.ID_psg = Passenger.ID_psg WHERE Passenger.name = 'S%');
+
+-- 7. El código, el nombre del pasajero, el tipo de avión que utilizó en su viaje, las ciudades de salida y destino de los pasajero cuyo nombre empieza con la letra “S”.
+
